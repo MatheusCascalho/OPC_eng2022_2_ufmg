@@ -32,17 +32,41 @@ async def main():
         idx = await client.get_namespace_index(uri)
         _logger.info(f"Info of our namespace is {idx}")
 
-        grandson = await children[0].get_children()
-        myvar = await client.nodes.root.get_child([f"0:Objects", f"{idx}:Unidade001", f"{idx}:controlador", f"{idx}:modo"])
-        path = await client.get_node('ns=2;i=16').get_path(as_string=True)
+        modo = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:controlador", f"{idx}:modo"]
+        )
+        sp = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:controlador", f"{idx}:SP"]
+        )
+
+        pv = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:controlador", f"{idx}:PV"]
+        )
+
+
+        temperatura = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:Temperatura1"]
+        )
+
+        estado = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:motor", f"{idx}:Estado"]
+        )
+
+        partir = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:motor", f"{idx}:Partir"]
+        )
+
+        parar = await client.nodes.root.get_child(
+            [f"0:Objects", f"{idx}:Unidade001", f"{idx}:motor", f"{idx}:Parar"]
+        )
+
         obj = await client.nodes.root.get_child([f"0:Objects", f"{idx}:Unidade001"])
-        value = await myvar.read_value()
         # _logger.info(f"myvar is: {myvar.get_value()}")
 
         # subscribing to a variable node
         handler = SubHandler()
         sub = await client.create_subscription(10, handler)
-        handle = await sub.subscribe_data_change(myvar)
+        handle = await sub.subscribe_data_change(pv)
         await asyncio.sleep(0.1)
 
         # we can also subscribe to events from server
@@ -54,9 +78,14 @@ async def main():
         res = await obj.call_method("2:multiply", 3, "klk")
         _logger.info("method result is: %r", res)
         while True:
+            data = f"\nControle:\nModo: {await modo.get_value()}\tPV: {await pv.get_value()}\tSP: {await sp.get_value()}\n"
+            data += "-"*30
+            data += f"\nMotor:\nEstado: {await estado.get_value()}\tPartir: {await partir.get_value()}\tParar: {await parar.get_value()}\n"
+            data += "-" * 30
+            data += f"\nTemperatura: {await temperatura.get_value()}\n"
+            data += "=-=" * 30
+            print(data)
             await asyncio.sleep(1)
-
-        print(".")
     # # try:
     # client.connect()
     # root = client.get_root_node()
@@ -70,5 +99,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.WARNING)
     asyncio.run(main())
