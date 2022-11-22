@@ -1,7 +1,7 @@
 def gen_analog():
     v = 10
     while True:
-        v *= -2
+        v *= -1
         yield v
 
 class FakeArduino:
