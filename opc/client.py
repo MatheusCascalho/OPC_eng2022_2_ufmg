@@ -21,7 +21,7 @@ class SubHandler(object):
         print("New event", event)
 
 async def main():
-    url = "opc.tcp://localhost:48401/freeopcua/server_curso/"
+    url = "opc.tcp://localhost:4840/freeopcua/server_curso/"
     async with Client(url) as client:
         _logger.info(f"Root node is {client.nodes.root}")
         _logger.info(f"Object node is {client.nodes.objects}")

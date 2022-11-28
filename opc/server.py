@@ -139,7 +139,7 @@ async def main():
     server = Server()
     await server.init()
     server.disable_clock()  # for debugging
-    server.set_endpoint("opc.tcp://0.0.0.0:48401/freeopcua/server_curso/")
+    server.set_endpoint("opc.tcp://0.0.0.0:4840/freeopcua/server_curso/")
     server.set_server_name("FreeOpcUa Example Server Curso")
 
     # set all possible endpoint policies for clients to connect through
