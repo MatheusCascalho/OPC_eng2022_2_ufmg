@@ -78,13 +78,28 @@ async def main():
         res = await obj.call_method("2:multiply", 3, "klk")
         _logger.info("method result is: %r", res)
         while True:
-            data = f"\nControle:\nModo: {await modo.get_value()}\tPV: {await pv.get_value()}\tSP: {await sp.get_value()}\n"
+            data = f"\nControle:\n(1)Modo: {await modo.get_value()}\t(2)PV: {await pv.get_value()}\t(3)SP: {await sp.get_value()}\n"
             data += "-"*30
-            data += f"\nMotor:\nEstado: {await estado.get_value()}\tPartir: {await partir.get_value()}\tParar: {await parar.get_value()}\n"
+            data += f"\nMotor:\n(4)Estado: {await estado.get_value()}\t(5)Partir: {await partir.get_value()}\t(6)Parar: {await parar.get_value()}\n"
             data += "-" * 30
-            data += f"\nTemperatura: {await temperatura.get_value()}\n"
+            data += f"\n(7)Temperatura: {await temperatura.get_value()}\n"
             data += "=-=" * 30
             print(data)
+            alterar = input(f"Deseja alterar algum valor? (s/n): ")
+            if alterar[0].lower() == 's':
+                variavel = int(input(f"Selecione o a variável? "))
+                novo_valor = input(f"Novo valor: ")
+                if int(variavel) == 3:
+                    await sp.set_value(float(novo_valor))
+                elif int(variavel) == 1:
+                    await modo.set_value(str(novo_valor))
+                elif int(variavel) == 5:
+                    await partir.set_value(bool(int(novo_valor)))
+                elif int(variavel) == 6:
+                    await parar.set_value(bool(int(novo_valor)))
+                print("Feito!")
+            else:
+                print(f"Continuando...")
             await asyncio.sleep(1)
     # # try:
     # client.connect()
@@ -99,5 +114,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    # logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.WARNING)
     asyncio.run(main())

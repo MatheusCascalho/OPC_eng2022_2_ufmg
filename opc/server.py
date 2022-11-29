@@ -30,7 +30,7 @@ class SubHandler(object):
     Subscription handler. To receive events from server for a subscription
     """
 
-    def datachange_notifications(self, node, val, data):
+    def datachange_notification(self, node, val, data):
         global bd_dados
         global num_pts
         global arduino
@@ -77,10 +77,10 @@ def le_arduino():
             valor = bd_dados[i]['valor_escrever']
             if ((bd_dados[i]['tipo']).decode('utf-8') == 'DO'):
                 write_DO(canal, valor)
-                bd_dados[i]['escrever'] = 'N'
+                # bd_dados[i]['escrever'] = 'N'
             if ((bd_dados[i]['tipo']).decode('utf-8') == 'AO'):
                 write_AO(canal, valor)
-                bd_dados[i]['escrever'] = 'N'
+                # bd_dados[i]['escrever'] = 'N'
 
     DI = []
     DO = []
@@ -121,16 +121,6 @@ def le_arduino():
 
 
 async def main():
-    # optional: setup logging
-    # logger = logging.getLogger("asyncua.address_space")
-    # logger.setLevel(logging.DEBUG)
-    # logger = logging.getLogger("asyncua.internal_server")
-    # logger.setLevel(logging.DEBUG)
-    # logger = logging.getLogger("asyncua.binary_server_asyncio")
-    # logger.setLevel(logging.DEBUG)
-    # logger = logging.getLogger("asyncua.uaprocessor")
-    # logger.setLevel(logging.DEBUG)
-
     global bd_dados
     global num_pts
     global arduino
@@ -171,8 +161,6 @@ async def main():
     await (await motor.add_variable(idx, "Parar", False)).set_modelling_rule(True)
 
     # populating our address space
-    # First a folder to organise our nodes
-    # myfolder = await server.nodes.objects.add_folder(idx, "myEmptyFolder")
     # instantiate one instance of our device
     unidade001 = await server.nodes.objects.add_object(idx, "Unidade001", dev)
 
@@ -200,9 +188,10 @@ async def main():
     )
 
     # create directly some objects and variables
-    idx_saidas[str(ctrl_sp001)] = 10
-    idx_saidas[str(motor_partir001)] = 5
-    idx_saidas[str(motor_parar001)] = 6
+    idx_saidas[str(ctrl_sp001)] = 10  # AO-0 - A11
+    idx_saidas[str(motor_partir001)] = 5  # DO-0 - D6
+    idx_saidas[str(motor_parar001)] = 6  # DO-1 - D7
+    idx_saidas[str(ctrl_modo001)] = 2  # DI-2 - D2
 
     # creating a default event object
     # The event object automatically will have member for all events properties
@@ -264,7 +253,7 @@ def write_DO(canal, val):
     else:
         comando_str1 = 'SD' + str(canal) + ' ' + '0\n'
     comando_str1_byte = str.encode(comando_str1)
-    arduino.writelines([comando_str1])
+    arduino.write_lines([comando_str1_byte])
     time.sleep(2.0)
     return
 
@@ -273,14 +262,15 @@ def write_AO(canal, val):
     global arduino
     valor = val
     ivalor = int(valor)
+    canal = str(canal) if canal > 9 else '0' + str(canal)
 
     if ivalor > 255:
         ivalor = 255
     elif ivalor <= 0:
         ivalor = 0
-    comando_str1 = 'SA' + str(canal) + ' ' + str(val) + '\n'
+    comando_str1 = 'SA' + str(canal) + ' ' + str(ivalor) + '\n'
     comando_str1_byte = str.encode(comando_str1)
-    arduino.writelines([comando_str1_byte])
+    arduino.write_lines([comando_str1_byte])
     time.sleep(2.0)
     return
 
@@ -321,10 +311,11 @@ if __name__ == '__main__':
     i = 0
     for tag in tag_list:
         bd_dados[num_pts]['Tag'] = tag
-        bd_dados[num_pts]['eh_escrita'] = 'N'
+        bd_dados[num_pts]['eh_escrita'] = 'S'
         bd_dados[num_pts]['idx_valores'] = i
         bd_dados[num_pts]['tipo'] = 'DI'
-        bd_dados[num_pts]['escrever'] = 'N'
+        bd_dados[num_pts]['escrever'] = 'S'
+        bd_dados[num_pts]['canal'] = i
         i += 1
         num_pts += 1
     tag_list = dict(config['DO'])
@@ -334,8 +325,8 @@ if __name__ == '__main__':
         bd_dados[num_pts]['eh_escrita'] = 'S'
         bd_dados[num_pts]['idx_valores'] = i
         bd_dados[num_pts]['tipo'] = 'DO'
-        bd_dados[num_pts]['escrever'] = 'N'
-        bd_dados[num_pts]['canal'] = i + 7
+        bd_dados[num_pts]['escrever'] = 'S'
+        bd_dados[num_pts]['canal'] = i + 5
         i += 1
         num_pts += 1
     tag_list = dict(config['AI'])
@@ -346,6 +337,7 @@ if __name__ == '__main__':
         bd_dados[num_pts]['idx_valores'] = i
         bd_dados[num_pts]['tipo'] = 'AI'
         bd_dados[num_pts]['escrever'] = 'N'
+        bd_dados[num_pts]['canal'] = i + 7
         i += 1
         num_pts += 1
     tag_list = dict(config['AO'])
