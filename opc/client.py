@@ -78,7 +78,9 @@ async def main():
         res = await obj.call_method("2:multiply", 3, "klk")
         _logger.info("method result is: %r", res)
         while True:
-            data = f"\nControle:\n(1)Modo: {await modo.get_value()}\t(2)PV: {await pv.get_value()}\t(3)SP: {await sp.get_value()}\n"
+            data = f"\nControle:\n(1)Modo: {await modo.get_value()}\t"
+            data += f"(2)PV: {await pv.get_value()}\t"
+            data += f"(3)SP: {await sp.get_value()}\n"
             data += "-"*30
             data += f"\nMotor:\n(4)Estado: {await estado.get_value()}\t(5)Partir: {await partir.get_value()}\t(6)Parar: {await parar.get_value()}\n"
             data += "-" * 30

@@ -46,6 +46,8 @@ class SubHandler(object):
                         ((bd_dados[idx_saidas[str(node)]]['eh_escrita']).decode('utf-8') == 'S') &
                         (bd_dados[idx_saidas[str(node)]]['valor'] != val)
                 ):
+                    if isinstance(val, str):
+                        val = 1 if val == 'AUTO' else 0
                     bd_dados[idx_saidas[str(node)]]['valor_escrever'] = val
                     bd_dados[idx_saidas[str(node)]]['escrever'] = 'S'
         except Exception as e:
