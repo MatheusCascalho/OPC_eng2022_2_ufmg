@@ -27,7 +27,7 @@ class FakeArduino:
         data = f"I;D1,{self.digital[0]};D2,{self.digital[1]};D3,{self.digital[2]};D4,{self.digital[3]};D5,{self.digital[4]};"
         data += f"D6,{self.digital[5]};D7,{self.digital[6]};"
         data += f"A1,{self.analogical[0]};A2,{self.analogical[1]};A3,{self.analogical[2]};"
-        data += f"A4,{self.analogical[3]};A5,{self.analogical[4]};F"
+        data += f"A4,{next(self.analog)};A5,{self.analogical[4]};F"
         data = data.encode()
         print(f"FAKE ARDUINO: dados enviados: {data}")
         return data
